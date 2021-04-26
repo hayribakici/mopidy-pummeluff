@@ -46,5 +46,4 @@ class ActionsCommand(commands.Command):
         '''
         Prints out the available actions on the terminal.
         '''
-        for i, action in enumerate(ACTIONS):
-            logger.info("%i: %s", i, action)
+        logger.info("\n".join([str(i) + ": " + action for i, action in enumerate(ACTIONS)]))
