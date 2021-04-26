@@ -17,7 +17,6 @@ from .playback import PlayPause, Stop, PreviousTrack, NextTrack
 from .shutdown import Shutdown
 from .tracklist import Tracklist, ToggleShuffle
 from .volume import Volume
-from .latest import Latest
 
 ACTIONS = {}
 for action in __all__:
