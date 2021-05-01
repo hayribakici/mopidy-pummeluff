@@ -6,14 +6,14 @@ __all__ = (
     'GPIOHandler',
 )
 
-from threading import Thread
+from threading import Thread, Event
 from logging import getLogger
 from time import time
 
-import RPi.GPIO as GPIO
+# import RPi.GPIO as GPIO
 
 from mopidy_pummeluff.actions import Shutdown, PlayPause, Stop, PreviousTrack, NextTrack
-from mopidy_pummeluff.sound import play_sound
+# from mopidy_pummeluff.sound import play_sound
 
 LOGGER = getLogger(__name__)
 
@@ -33,7 +33,7 @@ class GPIOHandler(Thread):
 
     led_pin = 8
 
-    def __init__(self, core, stop_event):
+    def __init__(self, core):
         '''
         Class constructor.
 
@@ -43,7 +43,7 @@ class GPIOHandler(Thread):
         super().__init__()
 
         self.core       = core
-        self.stop_event = stop_event
+        self.stop_event = Event()
 
         now             = time()
         self.timestamps = {x: now for x in self.button_pins}
@@ -53,19 +53,19 @@ class GPIOHandler(Thread):
         '''
         Run the thread.
         '''
-        GPIO.setmode(GPIO.BOARD)
+        # GPIO.setmode(GPIO.BOARD)
 
         for pin in self.button_pins:
             LOGGER.debug('Setup pin %s as button pin', pin)
-            GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-            GPIO.add_event_detect(pin, GPIO.RISING, callback=lambda pin: self.button_push(pin))  # pylint: disable=unnecessary-lambda
+            # GPIO.setup(pin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+            # GPIO.add_event_detect(pin, GPIO.RISING, callback=lambda pin: self.button_push(pin))  # pylint: disable=unnecessary-lambda
 
         LOGGER.debug('Setup pin %s as LED pin', self.led_pin)
-        GPIO.setup(self.led_pin, GPIO.OUT)
-        GPIO.output(self.led_pin, GPIO.HIGH)
+        # GPIO.setup(self.led_pin, GPIO.OUT)
+        # GPIO.output(self.led_pin, GPIO.HIGH)
 
         self.stop_event.wait()
-        GPIO.cleanup()  # pylint: disable=no-member
+        # GPIO.cleanup()  # pylint: disable=no-member
 
     def button_push(self, pin):
         '''
@@ -73,11 +73,14 @@ class GPIOHandler(Thread):
 
         :param int pin: Pin number
         '''
-        now    = time()
-        before = self.timestamps[pin]
+        # now    = time()
+        # before = self.timestamps[pin]
 
-        if (GPIO.input(pin) == GPIO.LOW) and (now - before > 0.25):
-            LOGGER.debug('Button at pin %s was pushed', pin)
-            play_sound('success.wav')
-            self.button_pins[pin].execute(self.core)
-            self.timestamps[pin] = now
+        # if (GPIO.input(pin) == GPIO.LOW) and (now - before > 0.25):
+        #     LOGGER.debug('Button at pin %s was pushed', pin)
+        #     play_sound('success.wav')
+        #     self.button_pins[pin].execute(self.core)
+        #     self.timestamps[pin] = now
+
+    def stop(self):
+        self.stop_event.set()

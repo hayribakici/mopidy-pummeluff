@@ -10,12 +10,12 @@ from threading import Thread
 from time import time
 from logging import getLogger
 
-import RPi.GPIO as GPIO
-from pirc522 import RFID
+# import RPi.GPIO as GPIO
+# from pirc522 import RFID
 
-from mopidy_pummeluff.registry import REGISTRY
-from mopidy_pummeluff.actions.base import EmptyAction
-from mopidy_pummeluff.sound import play_sound
+# from mopidy_pummeluff.registry import REGISTRY
+# from mopidy_pummeluff.actions.base import EmptyAction
+# from mopidy_pummeluff.sound import play_sound
 
 LOGGER = getLogger(__name__)
 
@@ -47,27 +47,28 @@ class TagReader(Thread):
         '''
         super().__init__()
         self.stop_event = stop_event
-        self.rfid       = RFID()
+        # self.rfid       = RFID()
         self.success_event = success_event
 
     def run(self):
         '''
         Run RFID reading loop.
         '''
-        rfid      = self.rfid
+        LOGGER.info("starting thread")
+        # rfid      = self.rfid
         prev_time = time()
         prev_uid  = ''
+        LOGGER.info("Stop event set: %s", str(self.stop_event.is_set()))
 
         while not self.stop_event.is_set():
-            rfid.wait_for_tag()
-
+            # rfid.wait_for_tag()
             try:
                 now = time()
-                uid = self.read_uid()
+                uid = "1234" # self.read_uid()
 
                 if now - prev_time > 1 or uid != prev_uid:
                     LOGGER.info('Tag %s read', uid)
-                    self.handle_uid(uid)
+                    self.success_event(uid)
 
                 prev_time = now
                 prev_uid  = uid
@@ -75,44 +76,24 @@ class TagReader(Thread):
             except ReadError:
                 pass
 
-        GPIO.cleanup()  # pylint: disable=no-member
+        # GPIO.cleanup()  # pylint: disable=no-member
 
-    def read_uid(self):
-        '''
-        Return the UID from the tag.
+    # def read_uid(self):
+    #     '''
+    #     Return the UID from the tag.
 
-        :return: The hex UID
-        :rtype: string
-        '''
-        rfid = self.rfid
+    #     :return: The hex UID
+    #     :rtype: string
+    #     '''
+    #     rfid = self.rfid
 
-        error, data = rfid.request()  # pylint: disable=unused-variable
-        if error:
-            raise ReadError('Could not read tag')
+    #     error, data = rfid.request()  # pylint: disable=unused-variable
+    #     if error:
+    #         raise ReadError('Could not read tag')
 
-        error, uid_chunks = rfid.anticoll()
-        if error:
-            raise ReadError('Could not read UID')
+    #     error, uid_chunks = rfid.anticoll()
+    #     if error:
+    #         raise ReadError('Could not read UID')
 
-        uid = '{0[0]:02X}{0[1]:02X}{0[2]:02X}{0[3]:02X}'.format(uid_chunks)  # pylint: disable=invalid-format-index
-        return uid
-
-    def handle_uid(self, uid):
-        '''
-        Handle the scanned tag / retreived UID.
-
-        :param str uid: The UID
-        '''
-        try:
-            action = REGISTRY[str(uid)]
-            LOGGER.info('Triggering action of registered tag')
-            play_sound('success.wav')
-
-        except KeyError:
-            LOGGER.info('Tag is not registered, thus doing nothing')
-            play_sound('fail.wav')
-            action = EmptyAction(uid=uid)
-        
-        self.success_event(action)
-        action.scanned   = time()
-        TagReader.latest = action
+    #     uid = '{0[0]:02X}{0[1]:02X}{0[2]:02X}{0[3]:02X}'.format(uid_chunks)  # pylint: disable=invalid-format-index
+    #     return uid
