@@ -13,7 +13,7 @@ from time import time
 import RPi.GPIO as GPIO
 
 from mopidy_pummeluff.actions import Shutdown, PlayPause, Stop, PreviousTrack, NextTrack
-# from mopidy_pummeluff.sound import play_sound
+from mopidy_pummeluff.sound import play_sound
 
 LOGGER = getLogger(__name__)
 
