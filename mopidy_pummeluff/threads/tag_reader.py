@@ -6,7 +6,7 @@ __all__ = (
     'TagReader',
 )
 
-from threading import Thread
+from threading import Thread, Event
 from time import time
 from logging import getLogger
 
@@ -38,7 +38,7 @@ class TagReader(Thread):
     daemon = True
     latest = None
 
-    def __init__(self, stop_event, success_event):
+    def __init__(self, success_event):
         '''
         Class constructor.
 
@@ -46,7 +46,7 @@ class TagReader(Thread):
         :param success_event: callback method when a tag has been read successfully
         '''
         super().__init__()
-        self.stop_event = stop_event
+        self.stop_event = Event()
         # self.rfid       = RFID()
         self.success_event = success_event
 
@@ -78,6 +78,8 @@ class TagReader(Thread):
 
         # GPIO.cleanup()  # pylint: disable=no-member
 
+    def stop(self):
+        self.stop_event.set()
     # def read_uid(self):
     #     '''
     #     Return the UID from the tag.

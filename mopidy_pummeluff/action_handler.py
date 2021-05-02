@@ -17,7 +17,7 @@ class ActionHandler():
     def __init__(self, action_event):
         self.action_event = action_event
         self.stop_event = Event()
-        self.tag_reader = TagReader(self.stop_event, self.success_event)
+        self.tag_reader = TagReader(self.success_event)
 
     def success_event(self, uid):
         '''
@@ -43,4 +43,4 @@ class ActionHandler():
         self.tag_reader.start()
 
     def stop(self):
-        self.stop_event.set()
+        self.tag_reader.stop()

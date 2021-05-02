@@ -83,13 +83,14 @@ class RegisterCommand(commands.Command):
         self.action_class = ""
         self.alias = ""
         self.param = ""
-        self.stop_event = Event()
+        self.tag_reader = TagReader(self.success_event)
 
     def success_event(self, uid):
         REGISTRY.register(action_class=self.action_class,
             uid=uid,
             alias=self.alias,
             parameter=self.param)
+        self.tag_reader.stop()
         # self.stop_event.set()
 
     def run(self, args, kwargs):
@@ -99,11 +100,7 @@ class RegisterCommand(commands.Command):
         self.action_class = args.action
         self.alias = args.alias
         self.param = args.param
-
-        # tag_reader = MockTagReader("1234", self.action_class,
-        #                     self.alias, self.param, self.success_event)
-        tag_reader = TagReader(self.stop_event, self.success_event)
-        tag_reader.start()
+        self.tag_reader.start()
 
 
 class UnregisterCommand(commands.Command):
@@ -124,4 +121,3 @@ class UnregisterCommand(commands.Command):
         Unregistering a tag.
         '''
         REGISTRY.unregister(uid=args.uid)
-    
