@@ -52,7 +52,7 @@ class ActionsCommand(commands.Command):
         '''
         Prints out the available actions on the terminal.
         '''
-        logger.info("\n".join([ACTIONS]))
+        logger.info(ACTIONS.keys())
 
 class RegisterCommand(commands.Command):
     '''
@@ -91,7 +91,7 @@ class RegisterCommand(commands.Command):
             alias=self.alias,
             parameter=self.param)
         self.tag_reader.stop()
-        # self.stop_event.set()
+        
 
     def run(self, args, kwargs):
         '''
