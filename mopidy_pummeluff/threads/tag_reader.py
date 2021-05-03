@@ -38,7 +38,7 @@ class TagReader(Thread):
     daemon = True
     latest = None
 
-    def __init__(self, success_event):
+    def __init__(self, uid_read_event):
         '''
         Class constructor.
 
@@ -48,27 +48,27 @@ class TagReader(Thread):
         super().__init__()
         self.stop_event = Event()
         self.rfid       = RFID()
-        self.success_event = success_event
+        self.uid_read_event = uid_read_event
 
     def run(self):
         '''
         Run RFID reading loop.
         '''
-        LOGGER.info("starting thread")
         rfid      = self.rfid
         prev_time = time()
         prev_uid  = ''
-        LOGGER.info("Stop event set: %s", str(self.stop_event.is_set()))
+        
 
         while not self.stop_event.is_set():
             rfid.wait_for_tag()
+            
             try:
                 now = time()
                 uid = self.read_uid()
 
                 if now - prev_time > 1 or uid != prev_uid:
                     LOGGER.info('Tag %s read', uid)
-                    self.success_event(uid)
+                    self.uid_read_event(uid)
 
                 prev_time = now
                 prev_uid  = uid
@@ -80,6 +80,8 @@ class TagReader(Thread):
 
     def stop(self):
         self.stop_event.set()
+        
+
     def read_uid(self):
         '''
         Return the UID from the tag.

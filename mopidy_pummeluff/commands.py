@@ -83,14 +83,15 @@ class RegisterCommand(commands.Command):
         self.action_class = ""
         self.alias = ""
         self.param = ""
-        self.tag_reader = TagReader(self.success_event)
+        self.tag_reader = None
+        self.register_event = Event()
 
-    def success_event(self, uid):
+    def uid_read_event(self, uid):
         REGISTRY.register(action_class=self.action_class,
             uid=uid,
             alias=self.alias,
             parameter=self.param)
-        self.tag_reader.stop()
+        self.register_event.set()
         
 
     def run(self, args, kwargs):
@@ -100,7 +101,10 @@ class RegisterCommand(commands.Command):
         self.action_class = args.action
         self.alias = args.alias
         self.param = args.param
+        logger.info("Hold your RFID Chip to the reader...")
+        self.tag_reader = TagReader(self.uid_read_event)
         self.tag_reader.start()
+        self.register_event.wait()
 
 
 class UnregisterCommand(commands.Command):

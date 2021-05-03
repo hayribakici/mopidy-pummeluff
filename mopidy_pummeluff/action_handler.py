@@ -17,9 +17,9 @@ class ActionHandler():
     def __init__(self, action_event):
         self.action_event = action_event
         self.stop_event = Event()
-        self.tag_reader = TagReader(self.success_event)
+        self.tag_reader = TagReader(self.uid_read_event)
 
-    def success_event(self, uid):
+    def uid_read_event(self, uid):
         '''
         Handle the scanned tag / retreived UID.
 
